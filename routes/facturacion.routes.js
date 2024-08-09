@@ -3,6 +3,7 @@ module.exports = app => {
 
   let router = require("express").Router();
 
+  // -------------Empresas---------------------
   // Retorna una aplicación
   router.get("/empresas/", empresas.getAll);
 
@@ -17,6 +18,14 @@ module.exports = app => {
 
   // Retorna una aplicación con id
   router.delete("/empresas/:id", empresas.delete);
+
+  // -------------INVENTARIO RED---------------------
+  const red = require("../controllers/inventarioRed.controller.js");
+
+  // Retorna lista de red
+  router.get("/invred/", red.getAll);
+
+
 
   app.use('/api/v1/facturacion', router);
   
