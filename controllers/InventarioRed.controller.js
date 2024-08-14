@@ -132,3 +132,42 @@ exports.delete = (req, res) => {
     } else res.send({ message: `La Red con id ${req.params.id} fue eliminada satisfactoriamente!` });
   });
 };
+
+exports.createHistorico = (req, res) => {
+
+  // Valida el cuerpo del mensaje
+  if (!req.body || Object.keys(req.body).length === 0) {
+    res.status(400).send({
+      message: "El contenido no puede ser vacío!"
+    });
+  }
+  
+  // Guarda el historico de Red en la base de datos
+  Red.createHistorico(req.body, (err, data) => {
+    if (err)
+        res.status(500).send({
+            message:
+              err.message || "Algún error ha ocurrido mientras se crea el historico de Red."
+        });
+        else {
+          // actualizamos los datos dados en la tabla de inventario
+          Red.updateById(
+            req.body.idSerial,
+            new Red(req.body),
+            (err, data) => {
+              if (err) {
+                if (err.kind === "not_found") {
+                  res.status(404).send({
+                    message: `No se encontró la Red con id ${req.body.idSerial}.`
+                  });
+                } else {
+                  res.status(500).send({
+                    message: "Error actualizando la Red con id " + req.body.idSerial + ' ' + err
+                  });
+                }
+              } else res.send(data);
+            }
+          );
+        }
+  });
+};

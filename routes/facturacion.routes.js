@@ -37,6 +37,8 @@ module.exports = app => {
   // Retorna una aplicación con id
   router.delete("/invred/:id", red.delete);
 
+  // Creamos un historico de red
+  router.post("/invred/historico", red.createHistorico);
 
 
   app.use('/api/v1/facturacion', router);
