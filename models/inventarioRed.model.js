@@ -282,5 +282,38 @@ Red.createHistorico = async (historico, result) => {
     }
 };
 
+Red.findAllxTipoHistorico = async (tipoHistorico, result) => {
+
+    try {
+        db.query(`select i.*, h.tipohistorico, h.FechaHora, h.CriticidadNueva, h.CriticidadPrevia, h.Observaciones 
+            from tbl_inventariored as i inner join tbl_historicored as h on i.idSerial = h.idSerial  WHERE h.tipohistorico = '${tipoHistorico}';`, (err, res) => {
+            if (err) {
+                result( err.message, null);
+                return;
+            }
+            result(null, res);
+        });
+    } catch (error) {
+        console.error('Error al consultar: ', error);
+        result(error, null);
+    }
+};
+
+Red.findByIdxHistorico = async (id, result) => {
+
+    try {
+        db.query(`select i.*, h.tipohistorico, h.FechaHora, h.CriticidadNueva, h.CriticidadPrevia, h.Observaciones 
+            from tbl_inventariored as i inner join tbl_historicored as h on i.idSerial = h.idSerial  WHERE i.idSerial = '${id}';`, (err, res) => {
+            if (err) {
+                result( err.message, null);
+                return;
+            }
+            result(null, res);
+        });
+    } catch (error) {
+        console.error('Error al consultar: ', error);
+        result(error, null);
+    }
+};
 
 module.exports = Red;

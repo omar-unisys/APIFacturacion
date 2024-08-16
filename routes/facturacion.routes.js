@@ -40,6 +40,12 @@ module.exports = app => {
   // Creamos un historico de red
   router.post("/invred/historico", red.createHistorico);
 
+  // Retorna lista de historico red segun el tipo de historico pedido
+  router.get("/invred/tipohistorico/:id", red.getxTipoHistorico);
+
+  // Retorna una historico de red con idSerial
+  router.get("/invred/historico/:id", red.findByIdxHistorico);
+
 
   app.use('/api/v1/facturacion', router);
   
