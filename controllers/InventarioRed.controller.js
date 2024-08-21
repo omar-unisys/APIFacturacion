@@ -75,7 +75,7 @@ exports.create = (req, res) => {
       idFilial : req.body.idFilial,
       idCriticidad : req.body.idCriticidad,
       idTipoEquipo : req.body.idTipoEquipo,
-      idPropieatarioFilial : req.body.idPropieatarioFilial,
+      idPropietarioFilial : req.body.idPropietarioFilial,
       idFilialPago : req.body.idFilialPago,
       marca : req.body.marca,
       modelo : req.body.modelo,

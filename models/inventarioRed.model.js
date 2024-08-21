@@ -20,7 +20,7 @@ const Red = function(red) {
     this.idFilial = red.idFilial;
     this.idCriticidad = red.idCriticidad;
     this.idTipoEquipo = red.idTipoEquipo;
-    this.idPropieatarioFilial = red.idPropieatarioFilial;
+    this.idPropietarioFilial = red.idPropietarioFilial;
     this.idFilialPago = red.idFilialPago;
     this.marca = red.marca;
     this.modelo = red.modelo;
@@ -93,7 +93,7 @@ Red.updateById = async (id, red, result) => {
                 idFilial = ${handleUndefined('idFilial', red.idFilial)},
                 idCriticidad = ${handleUndefined('idCriticidad', red.idCriticidad)},
                 idTipoEquipo = ${handleUndefined('idTipoEquipo', red.idTipoEquipo)},
-                idPropietarioFilial = ${handleUndefined('idPropietarioFilial', red.idPropieatarioFilial)},
+                idPropietarioFilial = ${handleUndefined('idPropietarioFilial', red.idPropietarioFilial)},
                 idFilialPago = ${handleUndefined('idFilialPago', red.idFilialPago)},
                 Marca = ${handleUndefined('Marca', red.marca)},
                 Modelo = ${handleUndefined('Modelo', red.modelo)},
@@ -185,7 +185,7 @@ Red.create = async (red, result) => {
             '${red.idFilial}',
             '${red.idCriticidad}',
             '${red.idTipoEquipo}',
-            '${red.idPropieatarioFilial}',
+            '${red.idPropietarioFilial}',
             '${red.idFilialPago}',
             '${red.marca}',
             '${red.modelo}',
