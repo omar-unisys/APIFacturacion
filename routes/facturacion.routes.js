@@ -1,8 +1,10 @@
 module.exports = app => {
   const empresas = require("../controllers/empresas.controller.js");
+  const red = require("../controllers/inventarioRed.controller.js");
 
   let router = require("express").Router();
 
+  // -------------Empresas---------------------
   // Retorna una aplicación
   router.get("/empresas/", empresas.getAll);
 
@@ -17,6 +19,33 @@ module.exports = app => {
 
   // Retorna una aplicación con id
   router.delete("/empresas/:id", empresas.delete);
+
+  // -------------INVENTARIO RED---------------------
+  
+  // Retorna lista de red
+  router.get("/invred/", red.getAll);
+
+  // Retorna una aplicación con id
+  router.get("/invred/:id", red.findById);
+
+  // Retorna una aplicación con id
+  router.post("/invred/", red.create);
+
+  // Retorna una aplicación con id
+  router.put("/invred/:id", red.update);
+
+  // Retorna una aplicación con id
+  router.delete("/invred/:id", red.delete);
+
+  // Creamos un historico de red
+  router.post("/invred/historico", red.createHistorico);
+
+  // Retorna lista de historico red segun el tipo de historico pedido
+  router.get("/invred/tipohistorico/:id", red.getxTipoHistorico);
+
+  // Retorna una historico de red con idSerial
+  router.get("/invred/historico/:id", red.findByIdxHistorico);
+
 
   app.use('/api/v1/facturacion', router);
   
