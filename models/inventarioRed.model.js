@@ -22,33 +22,33 @@ const Red = function(red) {
     this.idTipoEquipo = red.idTipoEquipo;
     this.idPropietarioFilial = red.idPropietarioFilial;
     this.idFilialPago = red.idFilialPago;
-    this.marca = red.marca;
-    this.modelo = red.modelo;
-    this.nombreEquipo = red.nombreEquipo;
-    this.direccionIp = red.direccionIp;
-    this.tipoRed = red.tipoRed;
-    this.pais = red.pais;
-    this.sede = red.sede;
-    this.edificio = red.edificio;
-    this.piso = red.piso;
-    this.ubicacion = red.ubicacion;
-    this.tipoServicio = red.tipoServicio;
-    this.detalleServicio = red.detalleServicio;
-    this.administrable = red.administrable;
-    this.fechaSoporte = red.fechaSoporte;
-    this.soporteDetalle = red.soporteDetalle;
-    this.fechaGarantia = red.fechaGarantia;
-    this.garantiaDetalle = red.garantiaDetalle;
-    this.fechaEoL = red.fechaEoL;
-    this.eolDetalle = red.eolDetalle;
-    this.vrsFirmware = red.vrsFirmware;
-    this.numPuertos = red.numPuertos;
+    this.Marca = red.Marca;
+    this.Modelo = red.Modelo;
+    this.NombreEquipo = red.NombreEquipo;
+    this.DireccionIp = red.DireccionIp;
+    this.TipoRed = red.TipoRed;
+    this.Pais = red.Pais;
+    this.Sede = red.Sede;
+    this.Edificio = red.Edificio;
+    this.Piso = red.Piso;
+    this.Ubicacion = red.Ubicacion;
+    this.TipoServicio = red.TipoServicio;
+    this.DetalleServicio = red.DetalleServicio;
+    this.Administrable = red.Administrable;
+    this.FechaSoporte = red.FechaSoporte;
+    this.SoporteDetalle = red.SoporteDetalle;
+    this.FechaGarantia = red.FechaGarantia;
+    this.GarantiaDetalle = red.GarantiaDetalle;
+    this.FechaEoL = red.FechaEoL;
+    this.EolDetalle = red.EolDetalle;
+    this.VrsFirmware = red.VrsFirmware;
+    this.NumPuertos = red.NumPuertos;
     this.idEstado = red.idEstado;
-    this.fechaIngreso = red.fechaIngreso;
-    this.fechaModificacion = red.fechaModificacion;
-    this.comentario = red.comentario;
-    this.conectado = red.conectado;
-    this.inStock = red.inStock;
+    this.FechaIngreso = red.FechaIngreso;
+    this.FechaModificacion = red.FechaModificacion;
+    this.Comentario = red.Comentario;
+    this.Conectado = red.Conectado;
+    this.InStock = red.InStock;
 };
 
 
@@ -95,33 +95,33 @@ Red.updateById = async (id, red, result) => {
                 idTipoEquipo = ${handleUndefined('idTipoEquipo', red.idTipoEquipo)},
                 idPropietarioFilial = ${handleUndefined('idPropietarioFilial', red.idPropietarioFilial)},
                 idFilialPago = ${handleUndefined('idFilialPago', red.idFilialPago)},
-                Marca = ${handleUndefined('Marca', red.marca)},
-                Modelo = ${handleUndefined('Modelo', red.modelo)},
-                NombreEquipo = ${handleUndefined('NombreEquipo', red.nombreEquipo)},
-                DireccionIp = ${handleUndefined('DireccionIp', red.direccionIp)},
-                TipoRed = ${handleUndefined('TipoRed', red.tipoRed)},
-                Pais = ${handleUndefined('Pais', red.pais)},
-                Sede = ${handleUndefined('Sede', red.sede)},
-                Edificio = ${handleUndefined('Edificio', red.edificio)},
-                Piso = ${handleUndefined('Piso', red.piso)},
-                Ubicacion = ${handleUndefined('Ubicacion', red.ubicacion)},
-                TipoServicio = ${handleUndefined('TipoServicio', red.tipoServicio)},
-                DetalleServicio = ${handleUndefined('DetalleServicio', red.detalleServicio)},
-                Administrable = IF(${red.administrable !== undefined && red.administrable !== null ? red.administrable : 'NULL'} IS NOT NULL, ${red.administrable}, Administrable),
-                FechaSoporte = ${handleUndefined('FechaSoporte', red.fechaSoporte)},
-                SoporteDetalle = ${handleUndefined('SoporteDetalle', red.soporteDetalle)},
-                FechaGarantia = ${handleUndefined('FechaGarantia', red.fechaGarantia)},
-                GarantiaDetalle = ${handleUndefined('GarantiaDetalle', red.garantiaDetalle)},
-                FechaEoL = ${handleUndefined('FechaEoL', red.fechaEoL)},
-                EolDetalle = ${handleUndefined('EolDetalle', red.eolDetalle)},
-                VrsFirmware = ${handleUndefined('VrsFirmware', red.vrsFirmware)},
-                NumPuertos = ${handleUndefined('NumPuertos', red.numPuertos)},
+                Marca = ${handleUndefined('Marca', red.Marca)},
+                Modelo = ${handleUndefined('Modelo', red.Modelo)},
+                NombreEquipo = ${handleUndefined('NombreEquipo', red.NombreEquipo)},
+                DireccionIp = ${handleUndefined('DireccionIp', red.DireccionIp)},
+                TipoRed = ${handleUndefined('TipoRed', red.TipoRed)},
+                Pais = ${handleUndefined('Pais', red.Pais)},
+                Sede = ${handleUndefined('Sede', red.Sede)},
+                Edificio = ${handleUndefined('Edificio', red.Edificio)},
+                Piso = ${handleUndefined('Piso', red.Piso)},
+                Ubicacion = ${handleUndefined('Ubicacion', red.Ubicacion)},
+                TipoServicio = ${handleUndefined('TipoServicio', red.TipoServicio)},
+                DetalleServicio = ${handleUndefined('DetalleServicio', red.DetalleServicio)},
+                Administrable = IF(${red.Administrable !== undefined && red.Administrable !== null ? red.Administrable : 'NULL'} IS NOT NULL, ${red.Administrable}, Administrable),
+                FechaSoporte = ${handleUndefined('FechaSoporte', red.FechaSoporte)},
+                SoporteDetalle = ${handleUndefined('SoporteDetalle', red.SoporteDetalle)},
+                FechaGarantia = ${handleUndefined('FechaGarantia', red.FechaGarantia)},
+                GarantiaDetalle = ${handleUndefined('GarantiaDetalle', red.GarantiaDetalle)},
+                FechaEoL = ${handleUndefined('FechaEoL', red.FechaEoL)},
+                EolDetalle = ${handleUndefined('EolDetalle', red.EolDetalle)},
+                VrsFirmware = ${handleUndefined('VrsFirmware', red.VrsFirmware)},
+                NumPuertos = ${handleUndefined('NumPuertos', red.NumPuertos)},
                 idEstado = ${handleUndefined('idEstado', red.idEstado)},
-                FechaIngreso = ${handleUndefined('FechaIngreso', red.fechaIngreso)},
+                FechaIngreso = ${handleUndefined('FechaIngreso', red.FechaIngreso)},
                 FechaModificacion = NOW(),
-                Comentario = ${handleUndefined('Comentario', red.comentario)},  
-                Conectado = IF(${red.conectado !== undefined && red.conectado !== null ? red.conectado : 'NULL'} IS NOT NULL, ${red.conectado}, Conectado),
-                InStock = IF(${red.inStock !== undefined && red.inStock !== null ? red.inStock : 'NULL'} IS NOT NULL, ${red.inStock}, InStock)
+                Comentario = ${handleUndefined('Comentario', red.Comentario)},  
+                Conectado = IF(${red.Conectado !== undefined && red.Conectado !== null ? red.Conectado : 'NULL'} IS NOT NULL, ${red.Conectado}, Conectado),
+                InStock = IF(${red.InStock !== undefined && red.InStock !== null ? red.InStock : 'NULL'} IS NOT NULL, ${red.InStock}, InStock)
             WHERE idSerial = '${red.idSerial}';`, (err, res) => {
             if (err) {
                 result( err.message, null);
@@ -187,33 +187,33 @@ Red.create = async (red, result) => {
             '${red.idTipoEquipo}',
             '${red.idPropietarioFilial}',
             '${red.idFilialPago}',
-            '${red.marca}',
-            '${red.modelo}',
-            '${red.nombreEquipo}',
-            '${red.direccionIp}',
-            '${red.tipoRed}',
-            '${red.pais}',
-            '${red.sede}',
-            '${red.edificio}',
-            '${red.piso}',
-            '${red.ubicacion}',
-            '${red.tipoServicio}',
-            '${red.detalleServicio}',
-            ${red.administrable},
-            ${isValidDate(red.fechaSoporte) && !isEmpty(red.fechaSoporte) ? `'${red.fechaSoporte}'` : null },
-            '${red.soporteDetalle}',
-            ${isValidDate(red.fechaGarantia) && !isEmpty(red.fechaGarantia) ? `'${red.fechaGarantia}'` : null },
-            '${red.garantiaDetalle}',
-            ${isValidDate(red.fechaEoL) && !isEmpty(red.fechaEoL) ? `'${red.fechaEoL}'` : null },
-            '${red.eolDetalle}',
-            '${red.vrsFirmware}',
-            '${red.numPuertos}',
+            '${red.Marca}',
+            '${red.Modelo}',
+            '${red.NombreEquipo}',
+            '${red.DireccionIp}',
+            '${red.TipoRed}',
+            '${red.Pais}',
+            '${red.Sede}',
+            '${red.Edificio}',
+            '${red.Piso}',
+            '${red.Ubicacion}',
+            '${red.TipoServicio}',
+            '${red.DetalleServicio}',
+            ${red.Administrable},
+            ${isValidDate(red.FechaSoporte) && !isEmpty(red.FechaSoporte) ? `'${red.FechaSoporte}'` : null },
+            '${red.SoporteDetalle}',
+            ${isValidDate(red.FechaGarantia) && !isEmpty(red.FechaGarantia) ? `'${red.FechaGarantia}'` : null },
+            '${red.GarantiaDetalle}',
+            ${isValidDate(red.FechaEoL) && !isEmpty(red.FechaEoL) ? `'${red.FechaEoL}'` : null },
+            '${red.EolDetalle}',
+            '${red.VrsFirmware}',
+            '${red.NumPuertos}',
             '${red.idEstado}',
-            ${isValidDate(red.fechaIngreso) && !isEmpty(red.fechaIngreso) ? `'${red.fechaIngreso}'` : null },
+            ${isValidDate(red.FechaIngreso) && !isEmpty(red.FechaIngreso) ? `'${red.FechaIngreso}'` : null },
             NOW(),
-            '${red.comentario}',
-            ${red.conectado},
-            ${red.inStock});`, (err, res) => {
+            '${red.Comentario}',
+            ${red.Conectado},
+            ${red.InStock});`, (err, res) => {
             if (err) {
                 result( err.message, null);
                 return;
