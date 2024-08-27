@@ -22,6 +22,9 @@ module.exports = app => {
 
   // -------------INVENTARIO RED---------------------
   
+  
+
+
   // Retorna lista de red
   router.get("/invred/", red.getAll);
 
@@ -37,6 +40,14 @@ module.exports = app => {
   // Retorna una aplicación con id
   router.delete("/invred/:id", red.delete);
 
+
+  // Carga masiva de items de inventario
+  const multer = require('multer');
+  // Configuración de multer para almacenar el archivo en memoria
+  const upload = multer({ storage: multer.memoryStorage() });
+  router.post('/invred/uploadmasivo', upload.single('file'), red.uploadInventory);
+
+
   // Creamos un historico de red
   router.post("/invred/historico", red.createHistorico);
 
@@ -48,5 +59,10 @@ module.exports = app => {
 
 
   app.use('/api/v1/facturacion', router);
+
+
+
+
+
   
 };

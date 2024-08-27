@@ -1,3 +1,4 @@
+const multer = require("multer");
 const Red = require("../models/inventarioRed.model.js");
 
 exports.getAll = (req, res) => {
@@ -198,4 +199,69 @@ Red.findByIdxHistorico(req.params.id, (err, data) => {
     }
   } else res.send(data);
 });
+};
+
+const xlsx = require('xlsx');
+exports.uploadInventory = async (req, res) => {
+    try {
+        // Leer el archivo Excel desde el buffer
+        const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+        
+        // var workbook = xlsx.readFile(req.file.path);
+        const sheetName = workbook.SheetNames[0]; // Obtener el nombre de la primera hoja
+        
+        const sheet = workbook.Sheets[sheetName];
+        
+
+        // Convertir la hoja de Excel a un array de objetos JSON
+        const rows = xlsx.utils.sheet_to_json(sheet);
+
+        // Procesar cada fila del Excel y realizar la inserción o actualización
+        for (let row of rows) {
+            const inventoryData = {
+                idSerial: row.idSerial,
+                idFilial: row.idFilial,
+                idCriticidad: row.idCriticidad,
+                idTipoEquipo: row.idTipoEquipo,
+                idPropietarioFilial: row.idPropietarioFilial,
+                idFilialPago: row.idFilialPago,
+                Marca: row.Marca,
+                Modelo: row.Modelo,
+                NombreEquipo: row.NombreEquipo,
+                DireccionIp: row.DireccionIp,
+                TipoRed: row.TipoRed,
+                Pais: row.Pais,
+                Sede: row.Sede,
+                Edificio: row.Edificio,
+                Piso: row.Piso,
+                Ubicacion: row.Ubicacion,
+                TipoServicio: row.TipoServicio,
+                DetalleServicio: row.DetalleServicio,
+                Administrable: row.Administrable ? 1 : 0,
+                FechaSoporte: row.FechaSoporte || null,
+                SoporteDetalle: row.SoporteDetalle ,
+                FechaGarantia: row.FechaGarantia || null,
+                GarantiaDetalle: row.GarantiaDetalle ,
+                FechaEoL: row.FechaEoL || null,
+                EolDetalle: row.EolDetalle ,
+                VrsFirmware: row.VrsFirmware,
+                NumPuertos: row.NumPuertos,
+                idEstado: row.idEstado,
+                FechaIngreso: row.FechaIngreso || null,
+                FechaModificacion: new Date(),
+                Comentario: row.Comentario,
+                Conectado: row.Conectado ? 1 : 0,
+                InStock: row.InStock ? 1 : 0
+            };
+
+            // Aquí puedes llamar a una función en tu modelo para hacer un INSERT o UPDATE
+            await Red.upsert(inventoryData); // upsert es una combinación de update e insert
+        }
+
+        res.status(200).send({ message: 'Datos cargados exitosamente.' });
+    } catch (err) {
+        res.status(500).send({
+            message: err.message || "Error al procesar el archivo Excel."
+        });
+    }
 };
