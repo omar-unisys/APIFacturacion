@@ -23,7 +23,9 @@ module.exports = app => {
   // -------------INVENTARIO RED---------------------
   
   
-
+  
+  // obtencion de reporte de inventario red
+  router.get("/invred/exportExcel", red.getReport);
 
   // Retorna lista de red
   router.get("/invred/", red.getAll);
@@ -41,12 +43,13 @@ module.exports = app => {
   router.delete("/invred/:id", red.delete);
 
 
+
   // Carga masiva de items de inventario
   const multer = require('multer');
   // Configuración de multer para almacenar el archivo en memoria
   const upload = multer({ storage: multer.memoryStorage() });
   router.post('/invred/uploadmasivo', upload.single('file'), red.uploadInventory);
-
+  
 
   // Creamos un historico de red
   router.post("/invred/historico", red.createHistorico);

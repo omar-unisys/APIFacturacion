@@ -1,5 +1,73 @@
 const multer = require("multer");
 const Red = require("../models/inventarioRed.model.js");
+const xlsx = require('xlsx');
+
+exports.getReport =  (req, res) => {
+  try {
+    const title = req.query.title;
+    // 1. Obtener datos de la base de datos
+    Red.getAll(title, (err, data) => {
+      if (err)
+        res.status(500).send({
+          message:
+            err.message || "Ha ocurrido un error mientras retornaba la información."
+        });
+
+      // 2. Convertir datos a formato de hoja de cálculo
+      const worksheetData = data.map(item => ({
+        idSerial: item.idSerial,
+        idFilial: item.idFilial,
+        idCriticidad: item.idCriticidad,
+        idTipoEquipo: item.idTipoEquipo,
+        idPropietarioFilial: item.idPropietarioFilial,
+        idFilialPago: item.idFilialPago,
+        Marca: item.Marca,
+        Modelo: item.Modelo,
+        NombreEquipo: item.NombreEquipo,
+        DireccionIp: item.DireccionIp,
+        TipoRed: item.TipoRed,
+        Pais: item.Pais,
+        Sede: item.Sede,
+        Edificio: item.Edificio,
+        Piso: item.Piso,
+        Ubicacion: item.Ubicacion,
+        TipoServicio: item.TipoServicio,
+        DetalleServicio: item.DetalleServicio,
+        Administrable: item.Administrable,
+        FechaSoporte: item.FechaSoporte,
+        SoporteDetalle: item.SoporteDetalle,
+        FechaGarantia: item.FechaGarantia,
+        GarantiaDetalle: item.GarantiaDetalle,
+        FechaEoL: item.FechaEoL,
+        EolDetalle: item.EolDetalle,
+        VrsFirmware: item.VrsFirmware,
+        NumPuertos: item.NumPuertos,
+        idEstado: item.idEstado,
+        FechaIngreso: item.FechaIngreso,
+        FechaModificacion: item.FechaModificacion,
+        Comentario: item.Comentario,
+        Conectado: item.Conectado,
+        InStock: item.InStock
+      }));
+        // 3. Crear un libro de trabajo y agregar la hoja de cálculo
+      const workbook = xlsx.utils.book_new();
+      const worksheet = xlsx.utils.json_to_sheet(worksheetData);
+      xlsx.utils.book_append_sheet(workbook, worksheet, 'InventarioRed');
+
+      // 4. Generar el archivo Excel en memoria
+      const excelBuffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+      // 5. Establecer las cabeceras y enviar el archivo Excel
+      res.setHeader('Content-Disposition', 'attachment; filename=InventarioRed.xlsx');
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.send(excelBuffer);
+
+    });
+  } catch (error) {
+    console.error('Error exportando datos a Excel:', error);
+    res.status(500).send('Error exportando datos a Excel');
+  }
+};
 
 exports.getAll = (req, res) => {
     const title = req.query.title;
@@ -14,8 +82,6 @@ exports.getAll = (req, res) => {
       else res.send(data);
     });
 };
-
-
 
 exports.findById = (req, res) => {
   Red.findById(req.params.id, (err, data) => {
@@ -32,7 +98,6 @@ exports.findById = (req, res) => {
     } else res.send(data);
   });
 };
-
 
 exports.update = (req, res) => {
   // Validate Request
@@ -201,7 +266,7 @@ Red.findByIdxHistorico(req.params.id, (err, data) => {
 });
 };
 
-const xlsx = require('xlsx');
+
 exports.uploadInventory = async (req, res) => {
     try {
         // Leer el archivo Excel desde el buffer
@@ -265,3 +330,6 @@ exports.uploadInventory = async (req, res) => {
         });
     }
 };
+
+
+
