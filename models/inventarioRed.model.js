@@ -49,6 +49,7 @@ const Red = function(red) {
     this.Comentario = red.Comentario;
     this.Conectado = red.Conectado;
     this.InStock = red.InStock;
+    this.FechaInStock = red.FechaInStock;
 };
 
 
@@ -121,7 +122,8 @@ Red.updateById = async (id, red, result) => {
                 FechaModificacion = NOW(),
                 Comentario = ${handleUndefined('Comentario', red.Comentario)},  
                 Conectado = IF(${red.Conectado !== undefined && red.Conectado !== null ? red.Conectado : 'NULL'} IS NOT NULL, ${red.Conectado}, Conectado),
-                InStock = IF(${red.InStock !== undefined && red.InStock !== null ? red.InStock : 'NULL'} IS NOT NULL, ${red.InStock}, InStock)
+                InStock = IF(${red.InStock !== undefined && red.InStock !== null ? red.InStock : 'NULL'} IS NOT NULL, ${red.InStock}, InStock), 
+                FechaInStock = ${handleUndefined('FechaInStock', red.FechaInStock)}
             WHERE idSerial = '${red.idSerial}';`, (err, res) => {
             if (err) {
                 result( err.message, null);
@@ -179,7 +181,8 @@ Red.create = async (red, result) => {
             FechaModificacion,
             Comentario,
             Conectado,
-            InStock)
+            InStock,
+            FechaInStock)
             VALUES
             ('${red.idSerial}',
             '${red.idFilial}',
@@ -213,7 +216,8 @@ Red.create = async (red, result) => {
             NOW(),
             '${red.Comentario}',
             ${red.Conectado},
-            ${red.InStock});`, (err, res) => {
+            ${red.InStock}, 
+            ${isValidDate(red.FechaInStock) && !isEmpty(red.FechaInStock) ? `'${red.FechaInStock}'` : null });`, (err, res) => {
             if (err) {
                 result( err.message, null);
                 return;

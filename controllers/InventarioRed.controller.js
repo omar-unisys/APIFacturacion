@@ -103,7 +103,8 @@ exports.create = (req, res) => {
       FechaModificacion : req.body.FechaModificacion,
       Comentario : req.body.Comentario,
       Conectado : req.body.Conectado,
-      InStock : req.body.InStock
+      InStock : req.body.InStock,
+      FechaInStock: req.body.FechaInStock
   });
   
     // Guarda la Red en la base de datos
