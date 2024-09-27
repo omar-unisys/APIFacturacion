@@ -87,55 +87,101 @@ Red.findById = async (id, result) => {
 };
 
 Red.updateById = async (id, red, result) => {
-
     try {
-        db.query(`UPDATE bd_facturacion.tbl_inventarioRed
-            SET
-                idFilial = ${handleUndefined('idFilial', red.idFilial)},
-                idCriticidad = ${handleUndefined('idCriticidad', red.idCriticidad)},
-                idTipoEquipo = ${handleUndefined('idTipoEquipo', red.idTipoEquipo)},
-                idPropietarioFilial = ${handleUndefined('idPropietarioFilial', red.idPropietarioFilial)},
-                idFilialPago = ${handleUndefined('idFilialPago', red.idFilialPago)},
-                Marca = ${handleUndefined('Marca', red.Marca)},
-                Modelo = ${handleUndefined('Modelo', red.Modelo)},
-                NombreEquipo = ${handleUndefined('NombreEquipo', red.NombreEquipo)},
-                DireccionIp = ${handleUndefined('DireccionIp', red.DireccionIp)},
-                TipoRed = ${handleUndefined('TipoRed', red.TipoRed)},
-                Pais = ${handleUndefined('Pais', red.Pais)},
-                Sede = ${handleUndefined('Sede', red.Sede)},
-                Edificio = ${handleUndefined('Edificio', red.Edificio)},
-                Piso = ${handleUndefined('Piso', red.Piso)},
-                Ubicacion = ${handleUndefined('Ubicacion', red.Ubicacion)},
-                TipoServicio = ${handleUndefined('TipoServicio', red.TipoServicio)},
-                DetalleServicio = ${handleUndefined('DetalleServicio', red.DetalleServicio)},
-                Administrable = IF(${red.Administrable !== undefined && red.Administrable !== null ? red.Administrable : 'NULL'} IS NOT NULL, ${red.Administrable}, Administrable),
-                FechaSoporte = ${handleUndefined('FechaSoporte', red.FechaSoporte)},
-                SoporteDetalle = ${handleUndefined('SoporteDetalle', red.SoporteDetalle)},
-                FechaGarantia = ${handleUndefined('FechaGarantia', red.FechaGarantia)},
-                GarantiaDetalle = ${handleUndefined('GarantiaDetalle', red.GarantiaDetalle)},
-                FechaEoL = ${handleUndefined('FechaEoL', red.FechaEoL)},
-                EolDetalle = ${handleUndefined('EolDetalle', red.EolDetalle)},
-                VrsFirmware = ${handleUndefined('VrsFirmware', red.VrsFirmware)},
-                NumPuertos = ${handleUndefined('NumPuertos', red.NumPuertos)},
-                idEstado = ${handleUndefined('idEstado', red.idEstado)},
-                FechaIngreso = ${handleUndefined('FechaIngreso', red.FechaIngreso)},
-                FechaModificacion = NOW(),
-                Comentario = ${handleUndefined('Comentario', red.Comentario)},  
-                Conectado = IF(${red.Conectado !== undefined && red.Conectado !== null ? red.Conectado : 'NULL'} IS NOT NULL, ${red.Conectado}, Conectado),
-                InStock = IF(${red.InStock !== undefined && red.InStock !== null ? red.InStock : 'NULL'} IS NOT NULL, ${red.InStock}, InStock), 
-                FechaInStock = ${handleUndefined('FechaInStock', red.FechaInStock)}
-            WHERE idSerial = '${red.idSerial}';`, (err, res) => {
+        // Log para verificar el valor de NumPuertos
+        console.log("Valor de NumPuertos antes de actualizar:", red.NumPuertos);
+
+        // Preparar la consulta SQL
+        const query = `UPDATE bd_facturacion.tbl_inventarioRed 
+                       SET 
+                           idFilial = ?,
+                           idCriticidad = ?,
+                           idTipoEquipo = ?,
+                           idPropietarioFilial = ?,
+                           idFilialPago = ?,
+                           Marca = ?,
+                           Modelo = ?,
+                           NombreEquipo = ?,
+                           DireccionIp = ?,
+                           TipoRed = ?,
+                           Pais = ?,
+                           Sede = ?,
+                           Edificio = ?,
+                           Piso = ?,
+                           Ubicacion = ?,
+                           TipoServicio = ?,
+                           DetalleServicio = ?,
+                           Administrable = ?,
+                           FechaSoporte = ?,
+                           SoporteDetalle = ?,
+                           FechaGarantia = ?, 
+                           GarantiaDetalle = ?,
+                           FechaEoL = ?, 
+                           EolDetalle = ?,
+                           VrsFirmware = ?,
+                           NumPuertos = ?,
+                           idEstado = ?,
+                           FechaIngreso = ?,
+                           FechaModificacion = ?,
+                           Comentario = ?,
+                           Conectado = ?,
+                           InStock = ?,
+                           FechaInStock = ?
+                       WHERE idSerial = ?;`;
+
+        // Preparar los valores para la consulta
+        const values = [
+            red.idFilial || null,
+            red.idCriticidad || null,
+            red.idTipoEquipo || null,
+            red.idPropietarioFilial || null,
+            red.idFilialPago || null,
+            red.Marca || null,
+            red.Modelo || null,
+            red.NombreEquipo || null,
+            red.DireccionIp || null,
+            red.TipoRed || null,
+            red.Pais || null,
+            red.Sede || null,
+            red.Edificio || null,
+            red.Piso || null,
+            red.Ubicacion || null,
+            red.TipoServicio || null,
+            red.DetalleServicio || null,
+            red.Administrable ? 1 : 0,
+            red.FechaSoporte || null,
+            red.SoporteDetalle || null,
+            red.FechaGarantia || null,
+            red.GarantiaDetalle || null,
+            red.FechaEoL || null,
+            red.EolDetalle || null,
+            red.VrsFirmware || null,
+            red.NumPuertos || null, // Asegúrate de que no haya espacios en blanco
+            red.idEstado || null,
+            red.FechaIngreso || null,
+            red.FechaModificacion || null,
+            red.Comentario || null,
+            red.Conectado ? 1 : 0,
+            red.InStock ? 1 : 0,
+            red.FechaInStock || null,
+            red.idSerial
+        ];
+
+        // Ejecutar la consulta SQL
+        db.query(query, values, (err, res) => {
             if (err) {
-                result( err.message, null);
+                console.error('Error en la consulta SQL:', err);
+                result(err.message, null);
                 return;
             }
-            
-            if (res.affectedRows == 0) {
-                // not found
+
+            // Verificar si se actualizó algún registro
+            if (res.affectedRows === 0) {
                 result({ kind: "not_found" }, null);
                 return;
             }
 
+            // Si todo fue bien, devolver los datos actualizados
             result(null, { ...red });
         });
     } catch (error) {
@@ -143,6 +189,10 @@ Red.updateById = async (id, red, result) => {
         result(error, null);
     }
 };
+
+
+
+
 
 Red.create = async (red, result) => {
 
