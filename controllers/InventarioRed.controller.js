@@ -100,31 +100,34 @@ exports.findById = (req, res) => {
 };
 
 exports.update = (req, res) => {
-  // Validate Request
   if (!req.body || Object.keys(req.body).length === 0) {
-    res.status(400).send({
-      message: "Contenido no puede ser vacío!"
-    });
+      return res.status(400).send({
+          message: "Contenido no puede ser vacío!"
+      });
   }
 
   Red.updateById(
-    req.params.id,
-    new Red(req.body),
-    (err, data) => {
-      if (err) {
-        if (err.kind === "not_found") {
-          res.status(404).send({
-            message: `No se encontró la Red con id ${req.params.id}.`
-          });
-        } else {
-          res.status(500).send({
-            message: "Error actualizando la Red con id " + req.params.id + ' ' + err
-          });
-        }
-      } else res.send(data);
-    }
+      req.params.id,
+      new Red(req.body),
+      (err, data) => {
+          if (err) {
+              if (err.kind === "not_found") {
+                  res.status(404).send({
+                      message: `No se encontró la Red con id ${req.params.id}.`
+                  });
+              } else {
+                  res.status(500).send({
+                      message: "Error actualizando la Red con id " + req.params.id + ' ' + err
+                  });
+              }
+          } else {
+              console.log("Datos actualizados:", data);
+              res.send(data);
+          }
+      }
   );
 };
+
 
 exports.create = (req, res) => {
 
@@ -143,33 +146,34 @@ exports.create = (req, res) => {
       idTipoEquipo : req.body.idTipoEquipo,
       idPropietarioFilial : req.body.idPropietarioFilial,
       idFilialPago : req.body.idFilialPago,
-      marca : req.body.marca,
-      modelo : req.body.modelo,
-      nombreEquipo : req.body.nombreEquipo,
-      direccionIp : req.body.direccionIp,
-      tipoRed : req.body.tipoRed,
-      pais : req.body.pais,
-      sede : req.body.sede,
-      edificio : req.body.edificio,
-      piso : req.body.piso,
-      ubicacion : req.body.ubicacion,
-      tipoServicio : req.body.tipoServicio,
-      detalleServicio : req.body.detalleServicio,
-      administrable : req.body.administrable,
-      fechaSoporte : req.body.fechaSoporte,
-      soporteDetalle : req.body.soporteDetalle,
-      fechaGarantia : req.body.fechaGarantia,
-      garantiaDetalle : req.body.garantiaDetalle,
-      fechaEoL : req.body.fechaEoL,
-      eolDetalle : req.body.eolDetalle,
-      vrsFirmware : req.body.vrsFirmware,
-      numPuertos : req.body.numPuertos,
+      Marca : req.body.Marca,
+      Modelo : req.body.Modelo,
+      NombreEquipo : req.body.NombreEquipo,
+      DireccionIp : req.body.DireccionIp,
+      TipoRed : req.body.TipoRed,
+      Pais : req.body.Pais,
+      Sede : req.body.Sede,
+      Edificio : req.body.Edificio,
+      Piso : req.body.Piso,
+      Ubicacion : req.body.Ubicacion,
+      TipoServicio : req.body.TipoServicio,
+      DetalleServicio : req.body.DetalleServicio,
+      Administrable : req.body.Administrable,
+      FechaSoporte : req.body.FechaSoporte,
+      SoporteDetalle : req.body.SoporteDetalle,
+      FechaGarantia : req.body.FechaGarantia,
+      GarantiaDetalle : req.body.GarantiaDetalle,
+      FechaEoL : req.body.FechaEoL,
+      EolDetalle : req.body.EolDetalle,
+      VrsFirmware : req.body.VrsFirmware,
+      NumPuertos : req.body.NumPuertos,
       idEstado : req.body.idEstado,
-      fechaIngreso : req.body.fechaIngreso,
-      fechaModificacion : req.body.fechaModificacion,
-      comentario : req.body.comentario,
-      conectado : req.body.conectado,
-      inStock : req.body.inStock
+      FechaIngreso : req.body.FechaIngreso,
+      FechaModificacion : req.body.FechaModificacion,
+      Comentario : req.body.Comentario,
+      Conectado : req.body.Conectado,
+      InStock : req.body.InStock,
+      FechaInStock: req.body.FechaInStock
   });
   
     // Guarda la Red en la base de datos
