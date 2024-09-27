@@ -1,12 +1,12 @@
 const db = require("./db.js");
 
-function isValidDate(dateString) {
+  function isValidDate(dateString) {
     const date = new Date(dateString);
-    return !isNaN(date.getTime());
+    return date instanceof Date && !isNaN(date);
   }
   
   function isEmpty(value) {
-    return value === '';
+    return value === undefined || value === null || value === '';
   }
 
   const handleUndefined = (field, value) => {
@@ -369,5 +369,90 @@ Red.findByIdxHistorico = async (id, result) => {
         result(error, null);
     }
 };
+
+
+
+Red.upsert = async (inventoryData, callback) => {
+  
+   // Estructura del query
+   const query = `
+   INSERT INTO tbl_inventario (
+     idSerial, idFilial, idCriticidad, idTipoEquipo, idPropietarioFilial, idFilialPago, Marca,
+     Modelo, NombreEquipo, DireccionIp, TipoRed, Pais, Sede, Edificio, Piso, Ubicacion,
+     TipoServicio, DetalleServicio, Administrable, FechaSoporte, SoporteDetalle, FechaGarantia,
+     GarantiaDetalle, FechaEoL, EolDetalle, VrsFirmware, NumPuertos, idEstado, FechaIngreso,
+     FechaModificacion, Comentario, Conectado, InStock
+   ) VALUES ?
+   ON DUPLICATE KEY UPDATE 
+     idFilial = VALUES(idFilial),
+     idCriticidad = VALUES(idCriticidad),
+     idTipoEquipo = VALUES(idTipoEquipo),
+     idPropietarioFilial = VALUES(idPropietarioFilial),
+     idFilialPago = VALUES(idFilialPago),
+     Marca = VALUES(Marca),
+     Modelo = VALUES(Modelo),
+     NombreEquipo = VALUES(NombreEquipo),
+     DireccionIp = VALUES(DireccionIp),
+     TipoRed = VALUES(TipoRed),
+     Pais = VALUES(Pais),
+     Sede = VALUES(Sede),
+     Edificio = VALUES(Edificio),
+     Piso = VALUES(Piso),
+     Ubicacion = VALUES(Ubicacion),
+     TipoServicio = VALUES(TipoServicio),
+     DetalleServicio = VALUES(DetalleServicio),
+     Administrable = VALUES(Administrable),
+     FechaSoporte = VALUES(FechaSoporte),
+     SoporteDetalle = VALUES(SoporteDetalle),
+     FechaGarantia = VALUES(FechaGarantia),
+     GarantiaDetalle = VALUES(GarantiaDetalle),
+     FechaEoL = VALUES(FechaEoL),
+     EolDetalle = VALUES(EolDetalle),
+     VrsFirmware = VALUES(VrsFirmware),
+     NumPuertos = VALUES(NumPuertos),
+     idEstado = VALUES(idEstado),
+     FechaIngreso = VALUES(FechaIngreso),
+     FechaModificacion = VALUES(FechaModificacion),
+     Comentario = VALUES(Comentario),
+     Conectado = VALUES(Conectado),
+     InStock = VALUES(InStock);
+ `;
+console.log(query);
+console.log(inventoryData);
+// Verifica si inventoryData es un array, si no, lo convierte en uno
+if (!Array.isArray(inventoryData)) {
+    inventoryData = [inventoryData];
+  }
+  console.log(inventoryData);
+// Crear el array de valores a insertar
+const values = inventoryData.map(item => [
+  item.idSerial, item.idFilial, item.idCriticidad, item.idTipoEquipo, item.idPropietarioFilial,
+  item.idFilialPago, item.Marca, item.Modelo, item.NombreEquipo, item.DireccionIp, item.TipoRed,
+  item.Pais, item.Sede, item.Edificio, item.Piso, item.Ubicacion, item.TipoServicio, item.DetalleServicio,
+  item.Administrable, 
+  isValidDate(item.FechaSoporte) && !isEmpty(item.FechaSoporte) ? item.FechaSoporte : null,  
+  item.SoporteDetalle, 
+  isValidDate(item.FechaGarantia) && !isEmpty(item.FechaGarantia) ? item.FechaGarantia : null,
+  item.GarantiaDetalle,
+  isValidDate(item.FechaEoL) && !isEmpty(item.FechaEoL) ? item.FechaEoL : null, 
+  item.EolDetalle, item.VrsFirmware, item.NumPuertos, item.idEstado, 
+  isValidDate(item.FechaIngreso) && !isEmpty(item.FechaIngreso) ? item.FechaIngreso : null,
+  new Date(), 
+  item.Comentario, item.Conectado, item.InStock
+]);
+
+console.log(values);
+    // Ejecutar la consulta
+    db.query(query, [values], function(err, results) {
+        if (err) {
+          console.error('Error al hacer insert masivo:', err);
+          return callback(err, null);  // Devuelve el error a través del callback
+        }
+        console.log('Upsert completado, filas afectadas:', results.affectedRows);
+        return callback(null, results);  // Devuelve los resultados a través del callback
+      });
+};
+
+
 
 module.exports = Red;
