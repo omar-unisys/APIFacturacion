@@ -25,6 +25,9 @@ module.exports = app => {
   // Retorna lista de red
   router.get("/invred/", red.getAll);
 
+  // Retorna lista de facturas de red
+  router.get("/facturasinvred/", red.getAllFacturas);
+
   // Retorna una aplicación con id
   router.get("/invred/:id", red.findById);
 
