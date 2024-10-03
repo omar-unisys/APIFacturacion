@@ -1,5 +1,6 @@
 const multer = require("multer");
 const Red = require("../models/inventarioRed.model.js");
+const InventarioFactura = require("../models/inventarioFactura.model.js");
 const xlsx = require('xlsx');
 
 exports.getReport =  (req, res) => {
@@ -335,5 +336,19 @@ exports.uploadInventory = async (req, res) => {
     }
 };
 
+exports.getInventarioFactura = (req, res) => {
+  const title = req.query.title; // Si necesitas algún filtro
+
+  InventarioFactura.getAll(title, (err, data) => {
+      if (err) {
+          res.status(500).send({
+              message:
+                  err.message || "Ha ocurrido un error mientras retornaba la información."
+          });
+      } else {
+          res.send(data);
+      }
+  });
+};
 
 

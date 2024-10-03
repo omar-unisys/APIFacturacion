@@ -1,6 +1,8 @@
 module.exports = app => {
   const empresas = require("../controllers/empresas.controller.js");
   const red = require("../controllers/inventarioRed.controller.js");
+  const LB = require("../controllers/lineaBase.controller.js");
+
 
   let router = require("express").Router();
 
@@ -31,7 +33,7 @@ module.exports = app => {
   router.get("/invred/", red.getAll);
 
   // Retorna lista de facturas de red
-  router.get("/facturasinvred/", red.getAllFacturas);
+  router.get("/facturasinvred/", red.getAll);
 
   // Retorna una aplicación con id
   router.get("/invred/:id", red.findById);
@@ -52,7 +54,6 @@ module.exports = app => {
   // Configuración de multer para almacenar el archivo en memoria
   const upload = multer({ storage: multer.memoryStorage() });
   router.post('/invred/uploadmasivo', upload.single('file'), red.uploadInventory);
-  
 
   // Creamos un historico de red
   router.post("/invred/historico", red.createHistorico);
@@ -63,12 +64,14 @@ module.exports = app => {
   // Retorna una historico de red con idSerial
   router.get("/invred/historico/:id", red.findByIdxHistorico);
 
-
   app.use('/api/v1/facturacion', router);
 
+  router.get("/JoinInventarioFactura/", red.getInventarioFactura);
 
+  // llamado al controlador para crear la Linea Base
+  router.post("/linebase/", LB.create);
 
-
-
+  // llamado al controlador para consultar los elementos de la tabla Linea Base
+  router.get("/linebase/", LB.getLB);
   
 };
