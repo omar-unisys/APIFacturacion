@@ -1,5 +1,5 @@
 const multer = require("multer");
-const Tarifario = require("../models/lineaBase.model.js");
+const Tarifario = require("../models/tarifario.model.js");
 
 //Funcion para llamar al modelo que crea registos  en la tabla Tarifario
 exports.create = async (req, res) => {

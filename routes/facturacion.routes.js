@@ -2,7 +2,7 @@ module.exports = app => {
   const empresas = require("../controllers/empresas.controller.js");
   const red = require("../controllers/inventarioRed.controller.js");
   const LB = require("../controllers/lineaBase.controller.js");
-
+  const Tarifario = require("../controllers/tarifario.controller.js");
 
   let router = require("express").Router();
 
@@ -73,5 +73,12 @@ module.exports = app => {
 
   // llamado al controlador para consultar los elementos de la tabla Linea Base
   router.get("/linebase/", LB.getLB);
+
+  // llamado al controlador para crear el Tarifario
+  router.post("/tarifario/", Tarifario.create);
+
+  // llamado al controlador para consultar los elementos de la tabla Tarifario
+  router.get("/tarifario/", Tarifario.getTarifario);
+
   
 };

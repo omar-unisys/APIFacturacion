@@ -12,11 +12,11 @@ const Tarifario = function(tarifario) {
 
 Tarifario.create = async (tarifario, result) => {
     try {
-        const query = `INSERT INTO bd_facturacion.tbl_lineabase
-            (Filial, Dispositivo, Criticidad, Cantidad)
-            VALUES (?, ?, ?, ?)`;
+        const query = `INSERT INTO bd_facturacion.tbl_tarifario
+            (TipoDispositivo, Criticidad, ValorUnitario, SLA,CantidadBaseContrato)
+            VALUES (?, ?, ?, ?, ?)`;
         
-        const values = [tarifario.Filial, tarifario.Dispositivo, tarifario.Criticidad, tarifario.Cantidad];
+        const values = [tarifario.TipoDispositivo, tarifario.Criticidad, tarifario.ValorUnitario, tarifario.SLA, tarifario.CantidadBaseContrato];
 
         db.query(query, values, (err, res) => {
             if (err) {
