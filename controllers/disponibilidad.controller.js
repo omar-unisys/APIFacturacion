@@ -1,6 +1,5 @@
 const multer = require("multer");
-const LB = require("../models/lineaBase.model.js");
-const InventarioFactura = require("../models/inventarioFactura.model.js");
+const Disponibilidad = require("../models/disponibilidad.model.js");
 
 //Funcionqpara llamar al modelo que crea registos  en la tabla Línea Base de la base de datos
 exports.create = async (req, res) => {
@@ -22,10 +21,10 @@ exports.create = async (req, res) => {
         }
 
         // Crear Linea Base
-        const lb = new LB({ Filial, Dispositivo, Criticidad, Cantidad });
+        const lb = new Disponibilidad({ Filial, Dispositivo, Criticidad, Cantidad });
 
         // Guardar la Linea Base en la base de datos
-        LB.create(lb, (err, data) => {
+        Disponibilidad.create(lb, (err, data) => {
             if (err) {
                 return res.status(500).send({
                     message: err.message || "Ocurrió un error mientras se creaba la Linea Base."
@@ -40,11 +39,11 @@ exports.create = async (req, res) => {
 };
 
 //Funcionqpara llamar al modelo que consulta los registos de la tabla Línea Base de la base de datos
-exports.getLB = (req, res) => {
+exports.getDisponibilidad = (req, res) => {
     const title = req.query.title;
     // console.log(req.query)
 
-    LB.getLB(title, (err, data) => {
+    Disponibilidad.getDisponibilidad(title, (err, data) => {
       if (err)
         res.status(500).send({
           message:
@@ -53,19 +52,3 @@ exports.getLB = (req, res) => {
       else res.send(data);
     });
 };
-
-
-
-exports.getSumCantidadByDevices = (req, res) => {
-    InventarioFactura.DescuentoxVolumen((err, data) => {
-        if (err) {
-            return res.status(500).send({
-                message: err.message || "Ha ocurrido un error al obtener los datos."
-            });
-        }
-        res.send(data);
-    });
-};
-
-
-

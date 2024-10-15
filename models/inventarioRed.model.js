@@ -1,13 +1,14 @@
 const db = require("./db.js");
 
-  function isValidDate(dateString) {
-    const date = new Date(dateString);
-    return date instanceof Date && !isNaN(date);
-  }
+function isValidDate(dateString) {
+    const parsedDate = Date.parse(dateString);
+    return !isNaN(parsedDate) && dateString.match(/^\d{4}-\d{2}-\d{2}$/);
+}
+
   
-  function isEmpty(value) {
-    return value === undefined || value === null || value === '';
-  }
+function isEmpty(value) {
+    return value === undefined || value === null || value.trim() === '';
+}
 
   const handleUndefined = (field, value) => {
     // Verifica si el valor es undefined, null o vacío y construye la condición SQL con IF
@@ -47,7 +48,7 @@ const Red = function(red) {
     this.FechaIngreso = red.FechaIngreso;
     this.FechaModificacion = red.FechaModificacion;
     this.Comentario = red.Comentario;
-    this.Conectado = red.Conectado;
+    this.Placa = red.Placa;
     this.InStock = red.InStock;
     this.FechaInStock = red.FechaInStock;
 };
@@ -124,7 +125,7 @@ Red.updateById = async (id, red, result) => {
                            FechaIngreso = ?,
                            FechaModificacion = ?,
                            Comentario = ?,
-                           Conectado = ?,
+                           Placa = ?,
                            InStock = ?,
                            FechaInStock = ?
                        WHERE idSerial = ?;`;
@@ -161,7 +162,7 @@ Red.updateById = async (id, red, result) => {
             red.FechaIngreso || null,
             red.FechaModificacion || null,
             red.Comentario || null,
-            red.Conectado ? 1 : 0,
+            red.Placa || null,
             red.InStock ? 1 : 0,
             red.FechaInStock || null,
             red.idSerial
@@ -195,91 +196,59 @@ Red.updateById = async (id, red, result) => {
 
 
 Red.create = async (red, result) => {
-
     try {
-
         db.query(`INSERT INTO bd_facturacion.tbl_inventarioRed
-            (idSerial,
-            idFilial,
-            idCriticidad,
-            idTipoEquipo,
-            idPropietarioFilial,
-            idFilialPago,
-            Marca,
-            Modelo,
-            NombreEquipo,
-            DireccionIp,
-            TipoRed,
-            Pais,
-            Sede,
-            Edificio,
-            Piso,
-            Ubicacion,
-            TipoServicio,
-            DetalleServicio,
-            Administrable,
-            FechaSoporte,
-            SoporteDetalle,
-            FechaGarantia,
-            GarantiaDetalle,
-            FechaEoL,
-            EolDetalle,
-            VrsFirmware,
-            NumPuertos,
-            idEstado,
-            FechaIngreso,
-            FechaModificacion,
-            Comentario,
-            Conectado,
-            InStock,
-            FechaInStock)
-            VALUES
-            ('${red.idSerial}',
-            '${red.idFilial}',
-            '${red.idCriticidad}',
-            '${red.idTipoEquipo}',
-            '${red.idPropietarioFilial}',
-            '${red.idFilialPago}',
-            '${red.Marca}',
-            '${red.Modelo}',
-            '${red.NombreEquipo}',
-            '${red.DireccionIp}',
-            '${red.TipoRed}',
-            '${red.Pais}',
-            '${red.Sede}',
-            '${red.Edificio}',
-            '${red.Piso}',
-            '${red.Ubicacion}',
-            '${red.TipoServicio}',
-            '${red.DetalleServicio}',
-            ${red.Administrable},
-            ${isValidDate(red.FechaSoporte) && !isEmpty(red.FechaSoporte) ? `'${red.FechaSoporte}'` : null },
-            '${red.SoporteDetalle}',
-            ${isValidDate(red.FechaGarantia) && !isEmpty(red.FechaGarantia) ? `'${red.FechaGarantia}'` : null },
-            '${red.GarantiaDetalle}',
-            ${isValidDate(red.FechaEoL) && !isEmpty(red.FechaEoL) ? `'${red.FechaEoL}'` : null },
-            '${red.EolDetalle}',
-            '${red.VrsFirmware}',
-            '${red.NumPuertos}',
-            '${red.idEstado}',
-            ${isValidDate(red.FechaIngreso) && !isEmpty(red.FechaIngreso) ? `'${red.FechaIngreso}'` : null },
-            NOW(),
-            '${red.Comentario}',
-            ${red.Conectado},
-            ${red.InStock}, 
-            ${isValidDate(red.FechaInStock) && !isEmpty(red.FechaInStock) ? `'${red.FechaInStock}'` : null });`, (err, res) => {
-            if (err) {
-                result( err.message, null);
-                return;
-            }
-
-            result(null, { ...red });
-        });
+            (idSerial, idFilial, idCriticidad, idTipoEquipo, idPropietarioFilial, idFilialPago, Marca, Modelo, NombreEquipo, DireccionIp, TipoRed, Pais, Sede, Edificio, Piso, Ubicacion, TipoServicio, DetalleServicio, Administrable, FechaSoporte, SoporteDetalle, FechaGarantia, GarantiaDetalle, FechaEoL, EolDetalle, VrsFirmware, NumPuertos, idEstado, FechaIngreso, FechaModificacion, Comentario, Placa, InStock, FechaInStock)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)`, 
+            [
+                red.idSerial,
+                red.idFilial,
+                red.idCriticidad,
+                red.idTipoEquipo,
+                red.idPropietarioFilial,
+                red.idFilialPago,
+                red.Marca,
+                red.Modelo,
+                red.NombreEquipo,
+                red.DireccionIp,
+                red.TipoRed,
+                red.Pais,
+                red.Sede,
+                red.Edificio,
+                red.Piso,
+                red.Ubicacion,
+                red.TipoServicio,
+                red.DetalleServicio,
+                red.Administrable,
+                isValidDate(red.FechaSoporte) && !isEmpty(red.FechaSoporte) ? red.FechaSoporte : null,
+                red.SoporteDetalle,
+                isValidDate(red.FechaGarantia) && !isEmpty(red.FechaGarantia) ? red.FechaGarantia : null,
+                red.GarantiaDetalle,
+                isValidDate(red.FechaEoL) && !isEmpty(red.FechaEoL) ? red.FechaEoL : null,
+                red.EolDetalle,
+                red.VrsFirmware,
+                red.NumPuertos,
+                red.idEstado,
+                isValidDate(red.FechaIngreso) && !isEmpty(red.FechaIngreso) ? red.FechaIngreso : null,
+                red.Comentario,
+                red.Placa,
+                red.InStock,
+                isValidDate(red.FechaInStock) && !isEmpty(red.FechaInStock) ? red.FechaInStock : null
+            ], 
+            (err, res) => {
+                if (err) {
+                    result(err.message, null);
+                    return;
+                }
+                result(null, { ...red });
+            });
+        
     } catch (error) {
         console.error('Error al crear la inventario de Red:', error);
         result(error, null);
     }
 };
+
 
 Red.delete = async (id, result) => {
 
@@ -381,7 +350,7 @@ Red.upsert = async (inventoryData, callback) => {
      Modelo, NombreEquipo, DireccionIp, TipoRed, Pais, Sede, Edificio, Piso, Ubicacion,
      TipoServicio, DetalleServicio, Administrable, FechaSoporte, SoporteDetalle, FechaGarantia,
      GarantiaDetalle, FechaEoL, EolDetalle, VrsFirmware, NumPuertos, idEstado, FechaIngreso,
-     FechaModificacion, Comentario, Conectado, InStock
+     FechaModificacion, Comentario, Placa, InStock
    ) VALUES ?
    ON DUPLICATE KEY UPDATE 
      idFilial = VALUES(idFilial),
@@ -414,7 +383,7 @@ Red.upsert = async (inventoryData, callback) => {
      FechaIngreso = VALUES(FechaIngreso),
      FechaModificacion = VALUES(FechaModificacion),
      Comentario = VALUES(Comentario),
-     Conectado = VALUES(Conectado),
+     Placa = VALUES(Placa),
      InStock = VALUES(InStock);
  `;
 console.log(query);
@@ -438,7 +407,7 @@ const values = inventoryData.map(item => [
   item.EolDetalle, item.VrsFirmware, item.NumPuertos, item.idEstado, 
   isValidDate(item.FechaIngreso) && !isEmpty(item.FechaIngreso) ? item.FechaIngreso : null,
   new Date(), 
-  item.Comentario, item.Conectado, item.InStock
+  item.Comentario, item.Placa, item.InStock
 ]);
 
 console.log(values);

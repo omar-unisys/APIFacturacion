@@ -50,8 +50,9 @@ exports.getTarifario = (req, res) => {
       if (err)
         res.status(500).send({
           message:
-            err.message || "Ha ocurrido un error mientras retornaba la información de la Línea Base."
+            err.message || "Ha ocurrido un error mientras retornaba la información de la Tabla Tarifario."
         });
       else res.send(data);
     });
 };
+

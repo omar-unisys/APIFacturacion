@@ -47,4 +47,27 @@ Tarifario.getTarifario = async (req, result) => {
     }
 };
 
+Tarifario.getValorUnitario = async (tipoEquipo, criticidad, result) => {
+    try {
+        const query = `
+            SELECT ValorUnitario
+            FROM tbl_tarifario
+            WHERE TipoDispositivo = ? AND Criticidad = ?
+            LIMIT 1`;
+
+        db.query(query, [tipoEquipo, criticidad], (err, res) => {
+            if (err) {
+                result(err.message, null);
+                return;
+            }
+
+            result(null, res.length > 0 ? res[0].ValorUnitario : -0.001);
+        });
+    } catch (error) {
+        console.error('Error al obtener el valor unitario:', error);
+        result(error, null);
+    }
+};
+
+
 module.exports = Tarifario;

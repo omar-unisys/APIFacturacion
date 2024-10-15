@@ -1,6 +1,5 @@
 const multer = require("multer");
 const Red = require("../models/inventarioRed.model.js");
-const InventarioFactura = require("../models/inventarioFactura.model.js");
 const xlsx = require('xlsx');
 
 exports.getReport =  (req, res) => {
@@ -48,7 +47,8 @@ exports.getReport =  (req, res) => {
         FechaModificacion: item.FechaModificacion,
         Comentario: item.Comentario,
         Conectado: item.Conectado,
-        InStock: item.InStock
+        InStock: item.InStock,
+        Placa: item.Placa
       }));
         // 3. Crear un libro de trabajo y agregar la hoja de cálculo
       const workbook = xlsx.utils.book_new();
@@ -172,9 +172,10 @@ exports.create = (req, res) => {
       FechaIngreso : req.body.FechaIngreso,
       FechaModificacion : req.body.FechaModificacion,
       Comentario : req.body.Comentario,
-      Conectado : req.body.Conectado,
       InStock : req.body.InStock,
-      FechaInStock: req.body.FechaInStock
+      FechaInStock: req.body.FechaInStock,
+      Placa: req.body.Placa
+
   });
   
     // Guarda la Red en la base de datos
@@ -320,7 +321,7 @@ exports.uploadInventory = async (req, res) => {
                 FechaIngreso: row.FechaIngreso || null,
                 FechaModificacion: new Date(),
                 Comentario: row.Comentario,
-                Conectado: row.Conectado ? 1 : 0,
+                Placa: row.Placa,
                 InStock: row.InStock ? 1 : 0
             };
 
@@ -336,19 +337,6 @@ exports.uploadInventory = async (req, res) => {
     }
 };
 
-exports.getInventarioFactura = (req, res) => {
-  const title = req.query.title; // Si necesitas algún filtro
 
-  InventarioFactura.getAll(title, (err, data) => {
-      if (err) {
-          res.status(500).send({
-              message:
-                  err.message || "Ha ocurrido un error mientras retornaba la información."
-          });
-      } else {
-          res.send(data);
-      }
-  });
-};
 
 

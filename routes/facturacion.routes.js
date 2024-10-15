@@ -3,7 +3,10 @@ module.exports = app => {
   const red = require("../controllers/inventarioRed.controller.js");
   const LB = require("../controllers/lineaBase.controller.js");
   const Tarifario = require("../controllers/tarifario.controller.js");
+  const Disponibilidad = require("../controllers/disponibilidad.controller.js");
+  const factura = require("../controllers/inventarioFactura.controller.js");
 
+  
   let router = require("express").Router();
 
   // -------------Empresas---------------------
@@ -66,7 +69,9 @@ module.exports = app => {
 
   app.use('/api/v1/facturacion', router);
 
-  router.get("/JoinInventarioFactura/", red.getInventarioFactura);
+  router.get("/JoinInventarioFactura/", factura.getInventarioFactura);
+
+  
 
   // llamado al controlador para crear la Linea Base
   router.post("/linebase/", LB.create);
@@ -80,5 +85,15 @@ module.exports = app => {
   // llamado al controlador para consultar los elementos de la tabla Tarifario
   router.get("/tarifario/", Tarifario.getTarifario);
 
+  // llamado al controlador para consultar los elementos de la tabla Tarifario
+  router.get("/reportedisponibilidad/", Disponibilidad.getDisponibilidad);
   
+   // Ruta para obtener la suma de la columna Cantidad donde Dispositivos
+  router.get("/getSumCantidadByDevices", LB.getSumCantidadByDevices);
+
+  router.put("/actualizar-valor-unitario", factura.actualizarValorUnitario);
+
+  // Ruta para subir el archivo y procesar los datos
+  router.post("/importReporteDisponibilidad/", factura.readReporteDisponibilidadExcel);
+
 };
