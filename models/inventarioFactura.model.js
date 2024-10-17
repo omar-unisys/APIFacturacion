@@ -155,7 +155,7 @@ InventarioFactura.DescuentoxVolumen = (result) => {
 
 InventarioFactura.updateValorUnitarioUSD = async (result) => {
     console.log('Estoy en el modelo de la API valor unitario');
-    
+
     const deviceTypes = ['Router', 'Switche', 'Comunicaciones'];
     const criticidades = ['Muy Alta', 'Alta', 'Media', 'Baja', 'Muy Alta-REP', 'Alta-REP', 'Media-REP', 'Baja-REP'];
 
@@ -182,38 +182,70 @@ InventarioFactura.updateValorUnitarioUSD = async (result) => {
 
             if (resultTarifario !== null) {
                 const valorUnitarioTarifario = resultTarifario.ValorUnitario;
-                const ansComprometidoTarifario = resultTarifario.SLA; // Obtener SLA
+                const ansComprometidoTarifario = resultTarifario.SLA;
 
+                // Nueva consulta con validación para verificar si ya existen valores en las columnas relevantes
                 const queryFacturas = `
-                    SELECT NroSerial, ValorUnitarioUSD, ANSComprometido
-                    FROM tbl_facturasinventariored
-                    WHERE TipoEquipo = ? AND CriticidadPrevia = ?;`;
+                    SELECT f.NroSerial, f.NombreEquipo, f.ValorUnitarioUSD, f.ANSComprometido, f.ANSCumplido, r.Availability AS ANSCumplido, f.DescuentoANS
+                    FROM tbl_facturasinventariored f
+                    LEFT JOIN tbl_reportedisponibilidad r ON f.NombreEquipo = r.Host
+                    WHERE f.TipoEquipo = ? AND f.CriticidadPrevia = ?
+                    AND (f.ValorUnitarioUSD IS NULL OR f.ValorUnitarioUSD = '' OR
+                         f.ANSComprometido IS NULL OR
+                         f.ANSCumplido IS NULL OR 
+                         f.DescuentoANS IS NULL
+                         OR f.DescuentoRecargoVolumen IS NULL OR f.DescuentoRecargoVolumen = '')
+                    `;
 
                 const resFacturas = await new Promise((resolve, reject) => {
                     db.query(queryFacturas, [device, criticidad], (err, resFacturas) => {
                         if (err) {
-                            console.log("Error consultando tbl_facturasinventariored: ", err);
+                            console.log("Error consultando tbl_facturasinventariored y tbl_reportedisponibilidad: ", err);
                             return reject(err);
                         }
                         resolve(resFacturas);
                     });
                 });
 
-                resFacturas.forEach((factura) => {
+                // Iterar sobre los registros obtenidos
+                for (const factura of resFacturas) {
                     const valorUnitarioFactura = factura.ValorUnitarioUSD;
                     const ansComprometidoFactura = factura.ANSComprometido;
+                    const ansCumplido = factura.ANSCumplido || 0; // En caso de que no haya valor de ANSCumplido en tbl_reportedisponibilidad
 
-                    // Si el ValorUnitario o el ANSComprometido son diferentes, actualizar la tabla
-                    if (valorUnitarioFactura !== valorUnitarioTarifario || ansComprometidoFactura !== ansComprometidoTarifario) {
+                    // Obtener el DescuentoANS desde tbl_descuentoxsla según ANSCumplido
+                    const queryDescuento = `
+                        SELECT Descuento
+                        FROM tbl_descuentoxsla
+                        WHERE ? <= Imdisponibilidad_hasta
+                        ORDER BY Imdisponibilidad_hasta ASC
+                        LIMIT 1;`;
+
+                    const descuentoANS = await new Promise((resolve, reject) => {
+                        db.query(queryDescuento, [ansCumplido], (err, resDescuento) => {
+                            if (err) {
+                                console.log("Error consultando tbl_descuentoxsla: ", err);
+                                return reject(err);
+                            }
+                            resolve(resDescuento.length > 0 ? resDescuento[0].Descuento : 0);
+                        });
+                    });
+
+                    // Solo actualizar si los campos relevantes no están ya actualizados
+                    if (valorUnitarioFactura !== valorUnitarioTarifario || 
+                        ansComprometidoFactura !== ansComprometidoTarifario || 
+                        factura.ANSCumplido !== ansCumplido || 
+                        factura.DescuentoANS !== descuentoANS) {
+
                         const updateQuery = `
                             UPDATE tbl_facturasinventariored
-                            SET ValorUnitarioUSD = ?, ANSComprometido = ?
+                            SET ValorUnitarioUSD = ?, ANSComprometido = ?, ANSCumplido = ?, DescuentoANS = ?
                             WHERE NroSerial = ?;`;
 
                         const promiseUpdate = new Promise((resolve, reject) => {
-                            db.query(updateQuery, [valorUnitarioTarifario, ansComprometidoTarifario, factura.NroSerial], (err, resUpdate) => {
+                            db.query(updateQuery, [valorUnitarioTarifario, ansComprometidoTarifario, ansCumplido, descuentoANS, factura.NroSerial], (err, resUpdate) => {
                                 if (err) {
-                                    console.log("Error actualizando ValorUnitarioUSD o ANSComprometido: ", err);
+                                    console.log("Error actualizando ValorUnitarioUSD, ANSComprometido, ANSCumplido o DescuentoANS: ", err);
                                     return reject(err);
                                 }
                                 console.log(`Valores actualizados para NroSerial: ${factura.NroSerial}`);
@@ -223,7 +255,7 @@ InventarioFactura.updateValorUnitarioUSD = async (result) => {
 
                         promises.push(promiseUpdate);
                     }
-                });
+                }
             }
         }
     }
@@ -233,58 +265,8 @@ InventarioFactura.updateValorUnitarioUSD = async (result) => {
     result(null, { message: "Proceso de actualización completado." });
 };
 
-const ReporteDisponibilidad = {};
 
-ReporteDisponibilidad.readReporteDisponibilidadExcel = async (filteredData, result) => {
-    const query = `
-        INSERT INTO tbl_reportedisponibilidad 
-        (Client, Host, Start_Date, End_Date, Days, Testname, Availability, Downtime, Type, Page, \`Group\`, Comment, Name_Alias, Description_1, Description_2, Description_3)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
 
-    // Utiliza un Promise para manejar las inserciones
-    const promises = filteredData.map(row => {
-        const values = [
-            row.Client, 
-            row.Host, 
-            new Date(row['Start Date']), 
-            new Date(row['End Date']), 
-            row.Days, 
-            row.Testname, 
-            row['Availability(%)'], 
-            row['Downtime (h:m:s)'], 
-            row.Type, 
-            row.Page, 
-            row.Group, 
-            row.Comment, 
-            row.Name || row.Alias, 
-            row['Description 1'], 
-            row['Description 2'], 
-            row['Description 3']
-        ];
 
-        return new Promise((resolve, reject) => {
-            db.query(query, values, (err, res) => {
-                if (err) {
-                    console.log('Error al insertar en la base de datos:', err);
-                    reject(err);
-                } else {
-                    resolve(res);
-                }
-            });
-        });
-    });
-
-    // Ejecutar todas las promesas de inserción
-    Promise.all(promises)
-        .then(() => {
-            result(null, { message: "Datos subidos correctamente." });
-        })
-        .catch(err => {
-            result(err, null);
-        });
-};
-
-module.exports = ReporteDisponibilidad;
 
 module.exports = InventarioFactura;
