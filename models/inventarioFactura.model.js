@@ -154,7 +154,7 @@ InventarioFactura.DescuentoxVolumen = (result) => {
 };
 
 InventarioFactura.updateValorUnitarioUSD = async (result) => {
-    console.log('Estoy en el modelo de la API valor unitario');
+    console.log('Actualizando TotalFacturarUSD en el modelo de la API');
 
     const deviceTypes = ['Router', 'Switche', 'Comunicaciones'];
     const criticidades = ['Muy Alta', 'Alta', 'Media', 'Baja', 'Muy Alta-REP', 'Alta-REP', 'Media-REP', 'Baja-REP'];
@@ -164,106 +164,71 @@ InventarioFactura.updateValorUnitarioUSD = async (result) => {
 
     for (const device of deviceTypes) {
         for (const criticidad of criticidades) {
-            const queryTarifario = `
-                SELECT ValorUnitario, SLA
-                FROM tbl_tarifario
-                WHERE TipoDispositivo = ? AND Criticidad = ?;`;
+            const queryFacturas = `
+                SELECT f.NroSerial, f.ValorUnitarioUSD, f.DescuentoANS, f.DescuentoRecargoVolumen
+                FROM tbl_facturasinventariored f
+                WHERE f.TipoEquipo = ? AND f.CriticidadPrevia = ?
+                AND (f.ValorUnitarioUSD IS NULL OR
+                     f.DescuentoANS IS NULL OR 
+                     f.DescuentoRecargoVolumen IS NULL OR 
+                     f.TotalFacturarUSD IS NULL)
+            `;
 
-            // Obtener el ValorUnitario y SLA desde tbl_tarifario
-            const resultTarifario = await new Promise((resolve, reject) => {
-                db.query(queryTarifario, [device, criticidad], (err, resTarifario) => {
+            const resFacturas = await new Promise((resolve, reject) => {
+                db.query(queryFacturas, [device, criticidad], (err, resFacturas) => {
                     if (err) {
-                        console.log("Error consultando tbl_tarifario: ", err);
+                        console.log("Error consultando tbl_facturasinventariored: ", err);
                         return reject(err);
                     }
-                    resolve(resTarifario.length > 0 ? resTarifario[0] : null);
+                    resolve(resFacturas);
                 });
             });
 
-            if (resultTarifario !== null) {
-                const valorUnitarioTarifario = resultTarifario.ValorUnitario;
-                const ansComprometidoTarifario = resultTarifario.SLA;
-
-                // Nueva consulta con validación para verificar si ya existen valores en las columnas relevantes
-                const queryFacturas = `
-                    SELECT f.NroSerial, f.NombreEquipo, f.ValorUnitarioUSD, f.ANSComprometido, f.ANSCumplido, r.Availability AS ANSCumplido, f.DescuentoANS
-                    FROM tbl_facturasinventariored f
-                    LEFT JOIN tbl_reportedisponibilidad r ON f.NombreEquipo = r.Host
-                    WHERE f.TipoEquipo = ? AND f.CriticidadPrevia = ?
-                    AND (f.ValorUnitarioUSD IS NULL OR f.ValorUnitarioUSD = '' OR
-                         f.ANSComprometido IS NULL OR
-                         f.ANSCumplido IS NULL OR 
-                         f.DescuentoANS IS NULL
-                         OR f.DescuentoRecargoVolumen IS NULL OR f.DescuentoRecargoVolumen = '')
-                    `;
-
-                const resFacturas = await new Promise((resolve, reject) => {
-                    db.query(queryFacturas, [device, criticidad], (err, resFacturas) => {
+            // Iterar sobre los registros obtenidos
+            for (const factura of resFacturas) {
+                // Convertir valores a números, 0 si son null o undefined
+                const valorUnitarioFactura = parseFloat(factura.ValorUnitarioUSD) || 0;
+                const descuentoANS = parseFloat(factura.DescuentoANS) || 0;
+                const descuentoRecargoVolumen = parseFloat(factura.DescuentoRecargoVolumen) || 0;
+            
+                // Realizar el cálculo de TotalFacturarUSD
+                let totalFacturarUSD = valorUnitarioFactura * (1 - descuentoANS) * (1 + descuentoRecargoVolumen);
+            
+                // Si el resultado es NaN, significa que algún valor no era numérico
+                if (isNaN(totalFacturarUSD)) {
+                    console.error(`Error: el cálculo de TotalFacturarUSD resultó en NaN para NroSerial: ${factura.NroSerial}`);
+                    continue; // Saltar esta iteración si el cálculo no es válido
+                }
+            
+                // Actualizar la columna TotalFacturarUSD
+                const updateQuery = `
+                    UPDATE tbl_facturasinventariored
+                    SET TotalFacturarUSD = ?
+                    WHERE NroSerial = ?;
+                `;
+            
+                const promiseUpdate = new Promise((resolve, reject) => {
+                    db.query(updateQuery, [totalFacturarUSD, factura.NroSerial], (err, resUpdate) => {
                         if (err) {
-                            console.log("Error consultando tbl_facturasinventariored y tbl_reportedisponibilidad: ", err);
+                            console.log(`Error actualizando TotalFacturarUSD para NroSerial: ${factura.NroSerial} Error: `, err);
                             return reject(err);
                         }
-                        resolve(resFacturas);
+                        console.log(`TotalFacturarUSD actualizado para NroSerial: ${factura.NroSerial}`);
+                        resolve();
                     });
                 });
-
-                // Iterar sobre los registros obtenidos
-                for (const factura of resFacturas) {
-                    const valorUnitarioFactura = factura.ValorUnitarioUSD;
-                    const ansComprometidoFactura = factura.ANSComprometido;
-                    const ansCumplido = factura.ANSCumplido || 0; // En caso de que no haya valor de ANSCumplido en tbl_reportedisponibilidad
-
-                    // Obtener el DescuentoANS desde tbl_descuentoxsla según ANSCumplido
-                    const queryDescuento = `
-                        SELECT Descuento
-                        FROM tbl_descuentoxsla
-                        WHERE ? <= Imdisponibilidad_hasta
-                        ORDER BY Imdisponibilidad_hasta ASC
-                        LIMIT 1;`;
-
-                    const descuentoANS = await new Promise((resolve, reject) => {
-                        db.query(queryDescuento, [ansCumplido], (err, resDescuento) => {
-                            if (err) {
-                                console.log("Error consultando tbl_descuentoxsla: ", err);
-                                return reject(err);
-                            }
-                            resolve(resDescuento.length > 0 ? resDescuento[0].Descuento : 0);
-                        });
-                    });
-
-                    // Solo actualizar si los campos relevantes no están ya actualizados
-                    if (valorUnitarioFactura !== valorUnitarioTarifario || 
-                        ansComprometidoFactura !== ansComprometidoTarifario || 
-                        factura.ANSCumplido !== ansCumplido || 
-                        factura.DescuentoANS !== descuentoANS) {
-
-                        const updateQuery = `
-                            UPDATE tbl_facturasinventariored
-                            SET ValorUnitarioUSD = ?, ANSComprometido = ?, ANSCumplido = ?, DescuentoANS = ?
-                            WHERE NroSerial = ?;`;
-
-                        const promiseUpdate = new Promise((resolve, reject) => {
-                            db.query(updateQuery, [valorUnitarioTarifario, ansComprometidoTarifario, ansCumplido, descuentoANS, factura.NroSerial], (err, resUpdate) => {
-                                if (err) {
-                                    console.log("Error actualizando ValorUnitarioUSD, ANSComprometido, ANSCumplido o DescuentoANS: ", err);
-                                    return reject(err);
-                                }
-                                console.log(`Valores actualizados para NroSerial: ${factura.NroSerial}`);
-                                resolve();
-                            });
-                        });
-
-                        promises.push(promiseUpdate);
-                    }
-                }
+            
+                promises.push(promiseUpdate);
             }
+            
         }
     }
 
     // Esperar a que todas las actualizaciones se completen
     await Promise.all(promises);
-    result(null, { message: "Proceso de actualización completado." });
+    result(null, { message: "Proceso de actualización de TotalFacturarUSD completado." });
 };
+
 
 
 
