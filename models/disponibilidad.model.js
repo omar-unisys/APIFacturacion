@@ -36,4 +36,54 @@ Disponibilidad.getDisponibilidad = async (req, result) => {
     }
 };
 
+Disponibilidad.readReporteDisponibilidadExcel = async (filteredData, result) => {
+    const query = `
+        INSERT INTO tbl_reportedisponibilidad 
+        (Client, Host, Start_Date, End_Date, Days, Testname, Availability, Downtime, Type, Page, \`Group\`, Comment, Name_Alias, Description_1, Description_2, Description_3)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    // Utiliza un Promise para manejar las inserciones
+    const promises = filteredData.map(row => {
+        const values = [
+            row.Client, 
+            row.Host, 
+            new Date(row['Start Date']), 
+            new Date(row['End Date']), 
+            row.Days, 
+            row.Testname, 
+            row['Availability(%)'], 
+            row['Downtime (h:m:s)'], 
+            row.Type, 
+            row.Page, 
+            row.Group, 
+            row.Comment, 
+            row.Name || row.Alias, 
+            row['Description 1'], 
+            row['Description 2'], 
+            row['Description 3']
+        ];
+
+        return new Promise((resolve, reject) => {
+            db.query(query, values, (err, res) => {
+                if (err) {
+                    console.log('Error al insertar en la base de datos:', err);
+                    reject(err);
+                } else {
+                    resolve(res);
+                }
+            });
+        });
+    });
+
+    // Ejecutar todas las promesas de inserción
+    Promise.all(promises)
+        .then(() => {
+            result(null, { message: "Datos subidos correctamente." });
+        })
+        .catch(err => {
+            result(err, null);
+        });
+};
+
 module.exports = Disponibilidad;

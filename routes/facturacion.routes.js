@@ -94,6 +94,6 @@ module.exports = app => {
   router.put("/actualizar-valor-unitario", factura.actualizarValorUnitario);
 
   // Ruta para subir el archivo y procesar los datos
-  router.post("/importReporteDisponibilidad/", factura.readReporteDisponibilidadExcel);
+  router.post("/importReporteDisponibilidad/", Disponibilidad.readReporteDisponibilidadExcel);
 
 };
